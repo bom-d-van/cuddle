@@ -1,18 +1,28 @@
 <html>
 <title>{{html .Room}} - cuddle</title>
+<meta name="viewport" content="width=250, user-scalable=no" />
 <style>
+html {
+	-webkit-text-size-adjust: 100%;
+	-ms-text-size-adjust: none;
+}
 body {
-	background: black;
-	color: white;
+	font-family: sans-serif;
+	background-color: #104;
 }
 #heading {
 	font-size: 150%;
+	color: #F9C;
 }
 #in {
 	padding: 4px 0;
 }
+#in input {
+	width: 235px;
+}
 #log .msg {
 	padding: 4px;
+	color: white;
 }
 </style>
 <body>
@@ -28,7 +38,7 @@ $(function() {
 	var room = '{{js .Room}}';
 	var token = '{{.Token}}';
 
-	var $in = $('#in input');
+	var $in = $('#in input').focus();
 	var $log = $('#log');
 
 	$in.keypress(function(e) {
