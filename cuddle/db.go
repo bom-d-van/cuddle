@@ -4,6 +4,7 @@ import (
 	"appengine"
 	"appengine/channel"
 	"appengine/datastore"
+	"appengine/memcache"
 	"os"
 )
 
@@ -28,21 +29,36 @@ type Client struct {
 func (r *Room) AddClient(c appengine.Context, id string) (string, os.Error) {
 	key := datastore.NewKey("Client", id, 0, r.Key())
 	client := &Client{ClientID: id}
-	if _, err := datastore.Put(c, key, client); err != nil {
+	_, err := datastore.Put(c, key, client)
+	if err != nil {
 		return "", err
 	}
+
+	err = memcache.Delete(c, r.Name)
+	if err != nil && err != memcache.ErrCacheMiss {
+		return "", err
+	}
+
 	return channel.Create(c, id)
 }
 
 // Send sends a message to all Clients in a Room.
 func (r *Room) Send(c appengine.Context, message string) os.Error {
 	var clients []Client
-	q := datastore.NewQuery("Client").Ancestor(r.Key())
-	_, err := q.GetAll(c, &clients)
-	if err != nil {
+
+	_, err := memcache.JSON.Get(c, r.Name, &clients)
+	if err != nil && err != memcache.ErrCacheMiss {
 		return err
 	}
-	
+
+	if err == memcache.ErrCacheMiss {
+		q := datastore.NewQuery("Client").Ancestor(r.Key())
+		_, err = q.GetAll(c, &clients)
+		if err != nil {
+			return err
+		}
+	}
+
 	for _, client := range clients {
 		err = channel.Send(c, client.ClientID, message)
 		if err != nil {
@@ -50,7 +66,9 @@ func (r *Room) Send(c appengine.Context, message string) os.Error {
 		}
 	}
 
-	return nil
+	return memcache.JSON.Set(c, &memcache.Item{
+		Key: r.Name, Object: clients,
+	})
 }
 
 // getRoom fetches a Room by name from the datastore,
