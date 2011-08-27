@@ -1,0 +1,5 @@
+This program requires appengine-go-backports/template.  To fetch the sources
+run this command from the root directory of the repository:
+
+	hg clone https://appengine-go-backports.googlecode.com/hg appengine-go-backports
+
