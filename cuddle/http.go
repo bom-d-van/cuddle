@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	defaultNameLen = 4  // the length of randomly generated names
+	defaultNameLen = 4 // the length of randomly generated names
 	clientIdLen    = 40
 )
 
@@ -54,7 +54,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Render the HTML template, passing in the room name and token.
-	data := struct { Room, Token string }{room.Name, token}
+	data := struct{ Room, Token string }{room.Name, token}
 	err = rootTmpl.Execute(w, data)
 	if err != nil {
 		http.Error(w, err.String(), http.StatusInternalServerError)
