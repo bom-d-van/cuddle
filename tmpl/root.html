@@ -1,0 +1,53 @@
+<html>
+<title>{{html .Room}} - cuddle</title>
+<style>
+body {
+	background: black;
+	color: white;
+}
+#heading {
+	font-size: 150%;
+}
+#in {
+	padding: 4px 0;
+}
+#log .msg {
+	padding: 4px;
+}
+</style>
+<body>
+
+<div id="heading">{{html .Room}}</div>
+<div id="in"><input type="text"></div>
+<div id="log"></div>
+
+<script type="text/javascript" src="/_ah/channel/jsapi"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+<script>
+$(function() {
+	var room = '{{js .Room}}';
+	var token = '{{.Token}}';
+
+	var $in = $('#in input');
+	var $log = $('#log');
+
+	$in.keypress(function(e) {
+		if (e.which != 13 && e.which != 10) {
+			return;
+		}
+		e.preventDefault();
+		var msg = $in.val();
+		$in.val('');
+		$.ajax('/post', {data: {room: room, msg: msg}});
+	});
+
+	var chan = new goog.appengine.Channel(token);
+	var sock = chan.open();
+	sock.onmessage = function(message) {
+		$log.prepend($('<div class="msg" />').text(message.data));
+	}
+});
+</script>
+
+</body>
+</html>
