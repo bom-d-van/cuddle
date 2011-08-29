@@ -1,0 +1,14 @@
+package hello // not package "main"
+
+import (
+	"fmt"
+	"http"
+)
+
+func hello(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "Hello, ", r.URL.Path[1:])
+}
+
+func init() { // not function "main"
+	http.HandleFunc("/", hello)
+}

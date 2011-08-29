@@ -1,0 +1,43 @@
+
+cuddle/            - the app root
+
+    app.yaml       - app engine metadata
+
+    cuddle/        - Go code belonging to "package cuddle"
+        db.go      - datastore code
+        http.go    - HTTP code
+        name.go    - naming code
+
+    tmpl/
+        root.html  - HTML, CSS, JavaScript (all inline)
+
+
+func (r *Room) AddClient(c appengine.Context, id string)
+				(string, os.Error) {
+	key := datastore.NewKey("Client", id, 0, r.Key())
+	client := &Client{ClientID: id}
+	_, err := datastore.Put(c, key, client)
+	if err != nil {
+		return "", err
+	}
+	return channel.Create(c, id)
+}
+
+
+// Send sends a message to all Clients in a Room.
+func (r *Room) Send(c appengine.Context, message string)
+				os.Error {
+	var clients []Client
+	q := datastore.NewQuery("Client").Ancestor(r.Key())
+	_, err = q.GetAll(c, &clients)
+	if err != nil {
+		return err
+	}
+	for _, client := range clients {
+		err = channel.Send(c, client.ClientID, message)
+		if err != nil {
+			c.Errorf("sending %q: %v", message, err)
+		}
+	}
+	return nil
+}

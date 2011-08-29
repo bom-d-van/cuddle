@@ -20,7 +20,7 @@ body {
 #in input {
 	width: 235px;
 }
-#log .msg {
+#log div {
 	padding: 4px;
 	color: white;
 }
@@ -31,16 +31,20 @@ body {
 <div id="in"><input type="text"></div>
 <div id="log"></div>
 
-<script type="text/javascript" src="/_ah/channel/jsapi"></script>
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+<script src="/_ah/channel/jsapi"></script>
 <script>
 $(function() {
 	var room = '{{js .Room}}';
 	var token = '{{js .Token}}';
 
-	var $in = $('#in input').focus();
-	var $log = $('#log');
+	var chan = new goog.appengine.Channel(token);
+	var sock = chan.open();
+	sock.onmessage = function(msg) {
+		$("#log").prepend($('<div />').text(msg.data));
+	}
 
+	var $in = $('#in input').focus();
 	$in.keypress(function(e) {
 		if (e.which != 13 && e.which != 10) {
 			return;
@@ -50,12 +54,6 @@ $(function() {
 		$in.val('');
 		$.ajax('/post', {data: {room: room, msg: msg}});
 	});
-
-	var chan = new goog.appengine.Channel(token);
-	var sock = chan.open();
-	sock.onmessage = function(message) {
-		$log.prepend($('<div class="msg" />').text(message.data));
-	}
 });
 </script>
 

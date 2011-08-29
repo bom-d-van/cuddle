@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html manifest="cache.appcache">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge;chrome=1" />
+    <title>Cuddle</title>
+    <link href="http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans+Mono" rel="stylesheet" type="text/css" />
+    <link id="prettify-link" href="src/prettify/prettify.css" rel="stylesheet" disabled />
+    <link href="css/default.css" class="theme" rel="stylesheet" media="screen"  />
+    <link href="css/common.css" rel="stylesheet" media="screen" />
+  </head>
+  <body>
+    <nav id="helpers">
+      <button title="Previous slide" id="nav-prev" class="nav-prev">⇽</button> 
+      <button title="Jump to a random slide" id="slide-no">5</button> 
+      <button title="Next slide" id="nav-next" class="nav-next">⇾</button>
+      <menu>
+        <button type="checkbox" data-command="toc" title="Table of Contents" class="toc">TOC</button>
+        <button type="checkbox" data-command="notes" title="View Slide Notes">✏</button>
+        <button type="checkbox" data-command="source" title="View slide source">↻</button>
+        <button type="checkbox" data-command="help" title="View Help">?</button>
+      </menu>
+    </nav>
+    <div class="presentation">
+      <div id="presentation-counter">Loading...</div>
+      <div class="slides">
+        <div class="slide" id="landing-slide">
+          <style>
+            #landing-slide p {
+              font-size: 35px;
+            }
+          </style>
+          <section class="middle">
+            <p>This presentation is an HTML5 web site</p>
+            <p>Press <span id="left-init-key" class="key">&rarr;</span> key to advance.</p>
+          </section>
+
+          <aside class="note">
+            <section>
+              Welcome! (This field is for presenter notes and commentary.)
+            </section>
+          </aside> 
+        </div>
+
+        <div class="slide" id="controls-slide">
+          <header>Controls</header>
+          <style>
+            #controls-slide li, #controls-slide p {
+              font-size: 32px;
+            }
+            #controls-slide .key {
+              bottom: 2px;
+            }
+          </style>
+          <section>
+            <ul>
+              <li><span class="key">&larr;</span> and <span class="key">&rarr;</span> to move around.</li>
+              <li><span class="key">Ctrl/Command</span> and <span class="key">+</span> or <span class="key">-</span> to zoom.</li>
+              <li><span class="key">S</span> to view page source.</li>
+              <li><span class="key">N</span> to toggle speaker notes.</li>
+              <li><span class="key">3</span> to toggle 3D effect.</li>
+              <li><span class="key">0</span> to toggle help.</li>
+            </ul>
+          </section>
+        </div>
+
+        <div class="slide" id="title-slide">
+          <style>
+            #title-slide h1, #title-slide h2 {
+              color: black;
+            }
+            #title-slide h1 {
+              font-size: 80px;
+            }
+            #title-slide h2 {
+              font-size: 36px;
+            }
+          </style>
+          <section class="middle">
+            <hgroup>
+              <h1>
+                Cuddle
+              </h1>
+              <h2>
+                A Go App Engine demo<br>Andrew Gerrand<br>adg@golang.org<br>GTUG Sydney<br>Aug 30, 2011<br>
+              </h2>
+            </hgroup>
+          </section>
+        </div>
+
+	<!-- start of slide 0 -->
+        <div class="slide" id="slide-0">
+          <header>Go on App Engine</header>
+
+          <section>
+            <p>
+            Available to the public since July 2011.<br>
+            
+            <br>
+            
+            All major App Engine APIs are supported:<br>
+            </p>
+            
+            <ul>
+            
+            <li>capability</li>
+            
+            <li>channel</li>
+            
+            <li>datastore</li>
+            
+            <li>mail</li>
+            
+            <li>memcache</li>
+            
+            <li>taskqueue</li>
+            
+            <li>urlfetch</li>
+            
+            <li>user</li>
+            
+            </ul>
+            
+
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 0 --><!-- start of slide 1 -->
+        <div class="slide" id="slide-1">
+          <header>Cuddle: multi-user anonymous chat</header>
+
+          <section>
+            <p>
+            Users visit a url, eg http://cuddle-demo.appspot.com/gtug <br>
+            
+            <br>
+            
+            This adds them to the &#34;gtug&#34; cuddle.<br>
+            
+            <br>
+            
+            Users send messages to the cuddle.<br>
+            
+            <br>
+            
+            All present members receive them.<br>
+            
+            <br>
+            
+            That&#39;s it. (Try it now!)<br>
+            
+            <br>
+            </p>
+            
+
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 1 --><!-- start of slide 2 -->
+        <div class="slide" id="slide-2">
+          <header>Anatomy of a Go app</header>
+
+          <section>
+            <p></p>
+            
+
+
+<pre>
+<!--{{code "cuddle/snippets" `/cuddle\//` `/root\.html/`}}
+-->cuddle/            - the app root
+
+    app.yaml       - app engine metadata
+
+    cuddle/        - Go code belonging to &#34;package cuddle&#34;
+        db.go      - datastore code
+        http.go    - HTTP code
+        name.go    - naming code
+
+    tmpl/
+        root.html  - HTML, CSS, JavaScript (all inline)
+</pre>
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 2 --><!-- start of slide 3 -->
+        <div class="slide" id="slide-3">
+          <header>app.yaml</header>
+
+          <section>
+            <p></p>
+            
+
+
+<pre>
+<!--{{code "../app.yaml"}}
+-->application: cuddle-demo
+version: 1
+runtime: go
+api_version: 2
+
+handlers:
+- url: /.*
+  script: _go_app
+</pre>
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 3 --><!-- start of slide 4 -->
+        <div class="slide" id="slide-4">
+          <header>Go&#39;s http package</header>
+
+          <section>
+            <p></p>
+            
+
+
+<pre>
+<!--{{code "cuddle/hello"}}
+-->// Serves &#34;Hello, Dave&#34; at http://localhost:8080/Dave
+package main
+
+import (
+    &#34;fmt&#34;
+    &#34;http&#34;
+)
+
+func hello(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprint(w, &#34;Hello, &#34;, r.URL.Path[1:])
+}
+
+func main() {
+    http.HandleFunc(&#34;/&#34;, hello)
+    http.ListenAndServe(&#34;localhost:8080&#34;, nil)
+}
+</pre>
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 4 --><!-- start of slide 5 -->
+        <div class="slide" id="slide-5">
+          <header>Package http and App Engine</header>
+
+          <section>
+            <p>
+            App Engine apps use the &#34;http&#34; package to serve HTTP, too.<br>
+            </p>
+            
+
+
+<pre>
+<!--{{code "cuddle/hellogae"}}
+-->package hello // not package &#34;main&#34;
+
+import (
+    &#34;fmt&#34;
+    &#34;http&#34;
+)
+
+func hello(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprint(w, &#34;Hello, &#34;, r.URL.Path[1:])
+}
+
+func init() { // not function &#34;main&#34;
+    http.HandleFunc(&#34;/&#34;, hello)
+}
+</pre>
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 5 --><!-- start of slide 6 -->
+        <div class="slide" id="slide-6">
+          <header>Cuddle&#39;s HTTP handlers</header>
+
+          <section>
+            <p>
+            Cuddle has two HTTP handlers:<br>
+            
+            <br>
+            
+            root - join the client to a cuddle and serve the HTML/JS/CSS code.<br>
+            
+            <br>
+            
+            post - post a message to a cuddle.<br>
+            
+            <br>
+            
+            (It sends messages to clients via the Channel API.)<br>
+            
+            <br>
+            
+            http.go:<br>
+            </p>
+            
+
+
+<pre>
+<!--{{code "../cuddle/http.go" `/func.init/` `/}/`}}
+-->func init() {
+    // Register our handlers with the http package.
+    http.HandleFunc(&#34;/&#34;, root)
+    http.HandleFunc(&#34;/post&#34;, post)
+}
+</pre>
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 6 --><!-- start of slide 7 -->
+        <div class="slide" id="slide-7">
+          <header>The root handler (1)</header>
+
+          <section>
+            <p>
+            The first part of the root handler gets the room name from the request URL and handles the case of a missing or invalid name.<br>
+            </p>
+            
+
+
+<pre>
+<!--{{code "../cuddle/http.go" `/root.is/` `/.}/`}}
+-->// root is an http handler that joins or creates a Room,
+// creates a new Client, and writes the HTML response.
+func root(w http.ResponseWriter, r *http.Request) {
+    // Get the name from the request URL.
+    name := r.URL.Path[1:]
+
+    // If no valid name is provided,
+    // generate a new one and redirect there.
+    if !ValidName.MatchString(name) {
+        name = RandName(defaultNameLen)
+        http.Redirect(w, r, &#34;/&#34;+name, http.StatusFound)
+        return
+    }
+</pre>
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 7 --><!-- start of slide 8 -->
+        <div class="slide" id="slide-8">
+          <header>Naming code (name.go)</header>
+
+          <section>
+            <p></p>
+            
+
+
+<pre>
+<!--{{code "../cuddle/name.go" `/ValidName/` "$"}}
+-->// ValidName matches a valid name string.
+var ValidName = regexp.MustCompile(`^[a-z]+$`)
+
+// RandName returns a string of l random characters.
+func RandName(l int) string {
+    n := make([]byte, l)
+    for i := range n {
+        n[i] = &#39;a&#39; + byte(rand.Intn(26))
+    }
+    return string(n)
+}
+
+func init() {
+    // Seed number generator with the current time.
+    rand.Seed(time.Nanoseconds())
+}
+</pre>
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 8 --><!-- start of slide 9 -->
+        <div class="slide" id="slide-9">
+          <header>The root handler (2)</header>
+
+          <section>
+            <p>
+            Now that we have the name of the room, call the getRoom function to get or create a Room record in the datastore.<br>
+            
+            <br>
+            
+            App Engine API calls are tied to the current request. To make any kind of API call we need an appengine.Context, which we get by calling appengine.NewContext with the current *http.Request.<br>
+            </p>
+            
+
+
+<pre>
+<!--{{code "../cuddle/http.go" `/NewContext/` `/.}/`}}
+-->    c := appengine.NewContext(r)
+
+    // Get or create the Room.
+    room, err := getRoom(c, name)
+    if err != nil {
+        http.Error(w, err.String(), 500)
+        return
+    }
+</pre>
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 9 --><!-- start of slide 10 -->
+        <div class="slide" id="slide-10">
+          <header>The Room type</header>
+
+          <section>
+            <p></p>
+            
+
+
+<pre>
+<!--{{code "../cuddle/db.go" `/Room.represents/` `/}/`}}
+-->// Room represents a chat room.
+type Room struct {
+    Name string
+}
+</pre>
+
+<pre>
+<!--{{code "../cuddle/db.go" `/Key/` `/}/`}}
+-->func (r *Room) Key() *datastore.Key {
+    return datastore.NewKey(&#34;Room&#34;, r.Name, 0, nil)
+}
+</pre>
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 10 --><!-- start of slide 11 -->
+        <div class="slide" id="slide-11">
+          <header>The getRoom function</header>
+
+          <section>
+            <p></p>
+            
+
+
+<pre>
+<!--{{code "../cuddle/db.go" `/getRoom/` "$"}}
+-->// getRoom fetches a Room by name from the datastore,
+// creating it if it doesn&#39;t exist already.
+func getRoom(c appengine.Context, name string) (
+            room *Room, err os.Error) {
+    room = &amp;Room{Name: name}
+    err = datastore.RunInTransaction(c,
+                func(c appengine.Context) os.Error {
+        err := datastore.Get(c, room.Key(), room)
+        if err == datastore.ErrNoSuchEntity {
+            _, err = datastore.Put(c, room.Key(), room)
+        }
+        return err
+    })
+    return
+}
+</pre>
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 11 --><!-- start of slide 12 -->
+        <div class="slide" id="slide-12">
+          <header>The root handler (3)</header>
+
+          <section>
+            <p></p>
+            
+
+
+<pre>
+<!--{{code "../cuddle/http.go" `/Create.a.new/` `/}/`}}
+-->    // Create a new Client, getting the channel token.
+    token, err := room.AddClient(c, RandName(clientIdLen))
+    if err != nil {
+        http.Error(w, err.String(), 500)
+        return
+    }
+</pre>
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 12 --><!-- start of slide 13 -->
+        <div class="slide" id="slide-13">
+          <header>The AddClient method</header>
+
+          <section>
+            <p>
+            AddClient puts a Client record to the datastore with the Room as its parent, creates a channel, and returns the channel token.<br>
+            </p>
+            
+
+
+<pre>
+<!--{{code "cuddle/snippets" `/AddClient/` `/^}/`}}
+-->func (r *Room) AddClient(c appengine.Context, id string)
+                (string, os.Error) {
+    key := datastore.NewKey(&#34;Client&#34;, id, 0, r.Key())
+    client := &amp;Client{ClientID: id}
+    _, err := datastore.Put(c, key, client)
+    if err != nil {
+        return &#34;&#34;, err
+    }
+    return channel.Create(c, id)
+}
+</pre>
+
+<pre>
+<!--{{code "../cuddle/db.go" `/type.Client/` `/}/`}}
+-->type Client struct {
+    ClientID string // the channel Client ID
+}
+</pre>
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 13 --><!-- start of slide 14 -->
+        <div class="slide" id="slide-14">
+          <header>The root handler (4)</header>
+
+          <section>
+            <p>
+            Finally, we have a *Room and a channel token. Let&#39;s render the HTML template.<br>
+            
+            <br>
+            
+            The &#34;data&#34; variable is an anonymous struct with the two fields we want to pass to the template, Room and Token.<br>
+            </p>
+            
+
+
+<pre>
+<!--{{code "../cuddle/http.go" `/Render/` `/^}/`}}
+-->    // Render the HTML template.
+    data := struct{ Room, Token string }{room.Name, token}
+    err = rootTmpl.Execute(w, data)
+    if err != nil {
+        http.Error(w, err.String(), 500)
+    }
+}
+</pre>
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 14 --><!-- start of slide 15 -->
+        <div class="slide" id="slide-15">
+          <header>The root template</header>
+
+          <section>
+            <p></p>
+            
+
+
+<pre>
+<!--{{code "../tmpl/root.html" `/<div/` `/^.}/`}}
+-->&lt;div id=&#34;heading&#34;&gt;{{html .Room}}&lt;/div&gt;
+&lt;div id=&#34;in&#34;&gt;&lt;input type=&#34;text&#34;&gt;&lt;/div&gt;
+&lt;div id=&#34;log&#34;&gt;&lt;/div&gt;
+
+&lt;script src=&#34;https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js&#34;&gt;&lt;/script&gt;
+&lt;script src=&#34;/_ah/channel/jsapi&#34;&gt;&lt;/script&gt;
+&lt;script&gt;
+$(function() {
+    var room = &#39;{{js .Room}}&#39;;
+    var token = &#39;{{js .Token}}&#39;;
+
+    var chan = new goog.appengine.Channel(token);
+    var sock = chan.open();
+    sock.onmessage = function(msg) {
+        $(&#34;#log&#34;).prepend($(&#39;&lt;div /&gt;&#39;).text(msg.data));
+    }
+</pre>
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 15 --><!-- start of slide 16 -->
+        <div class="slide" id="slide-16">
+          <header>The post handler</header>
+
+          <section>
+            <p></p>
+            
+
+
+<pre>
+<!--{{code "../cuddle/http.go" `/post.broad/` `/^}/`}}
+-->// post broadcasts a message to a specified Room.
+func post(w http.ResponseWriter, r *http.Request) {
+    c := appengine.NewContext(r)
+
+    // Get the room.
+    room, err := getRoom(c, r.FormValue(&#34;room&#34;))
+    if err != nil {
+        http.Error(w, err.String(), 500)
+        return
+    }
+
+    // Send the message to the clients in the room.
+    err = room.Send(c, r.FormValue(&#34;msg&#34;))
+    if err != nil {
+        http.Error(w, err.String(), 500)
+    }
+}
+</pre>
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 16 --><!-- start of slide 17 -->
+        <div class="slide" id="slide-17">
+          <header>The Send method</header>
+
+          <section>
+            <p></p>
+            
+
+
+<pre>
+<!--{{code "cuddle/snippets" `/Send/` `/^}/`}}
+-->// Send sends a message to all Clients in a Room.
+func (r *Room) Send(c appengine.Context, message string)
+                os.Error {
+    var clients []Client
+    q := datastore.NewQuery(&#34;Client&#34;).Ancestor(r.Key())
+    _, err = q.GetAll(c, &amp;clients)
+    if err != nil {
+        return err
+    }
+    for _, client := range clients {
+        err = channel.Send(c, client.ClientID, message)
+        if err != nil {
+            c.Errorf(&#34;sending %q: %v&#34;, message, err)
+        }
+    }
+    return nil
+}
+</pre>
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 17 -->
+
+      </div>
+
+      <div id="speaker-note" class="invisible" style="display: none;">
+      </div> <!-- speaker note -->
+      <aside id="help" class="sidebar invisible" style="display: hidden;">
+        <table>
+          <caption>Help</caption>
+          <tbody>
+            <tr>
+              <th>Move Around</th>
+              <td>&larr;&nbsp;&rarr;</td>
+            </tr>
+            <tr>
+              <th>Source File</th>
+              <td>s</td>
+            </tr>
+            <tr>
+              <th>Speaker Notes</th>
+              <td>n</td>
+            </tr>
+            <tr>
+              <th>Toggle 3D</th>
+              <td>3</td>
+            </tr>
+            <tr>
+              <th>Help</th>
+              <td>0</td>
+            </tr>
+          </tbody>
+        </table>
+      </aside>
+
+    </div> <!-- presentation -->
+
+    <!--[if lt IE 9]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">
+    </script>
+    <script>CFInstall.check({ mode: "overlay" });</script>
+    <![endif]-->
+
+    <script src="js/utils.js"></script>
+  </body>
+</html>

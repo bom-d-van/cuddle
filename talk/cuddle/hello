@@ -1,0 +1,16 @@
+// Serves "Hello, Dave" at http://localhost:8080/Dave
+package main
+
+import (
+	"fmt"
+	"http"
+)
+
+func hello(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "Hello, ", r.URL.Path[1:])
+}
+
+func main() {
+	http.HandleFunc("/", hello)
+	http.ListenAndServe("localhost:8080", nil)
+}

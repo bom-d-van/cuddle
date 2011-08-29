@@ -6,22 +6,19 @@ import (
 	"time"
 )
 
-func init() {
-	// Seed the random number generator with the current time.
-	rand.Seed(time.Nanoseconds())
-}
+// ValidName matches a valid name string.
+var ValidName = regexp.MustCompile(`^[a-z]+$`)
 
-// nameChars are the characters that can be in a name.
-const nameChars = "abcdefghijklmnopqrstuvwxyz"
-
-// ValidName matches a string consisting of nameChars.
-var ValidName = regexp.MustCompile(`^[` + regexp.QuoteMeta(nameChars) + `]+$`)
-
-// RandName returns a string of l random characters chosen from nameChars.
+// RandName returns a string of l random characters.
 func RandName(l int) string {
 	n := make([]byte, l)
 	for i := range n {
-		n[i] = nameChars[rand.Intn(len(nameChars))]
+		n[i] = 'a' + byte(rand.Intn(26))
 	}
 	return string(n)
+}
+
+func init() {
+	// Seed number generator with the current time.
+	rand.Seed(time.Nanoseconds())
 }

@@ -8,9 +8,10 @@ import (
 	"os"
 )
 
-// Room represents a chat room.
-// These are stored in the datastore to be the parent entity of many Clients,
+// Rooms are stored in the datastore to be the parent entity of many Clients,
 // keeping all the participants in a particular chat in the same entity group.
+
+// Room represents a chat room.
 type Room struct {
 	Name string
 }
@@ -42,7 +43,6 @@ func (r *Room) AddClient(c appengine.Context, id string) (string, os.Error) {
 	return channel.Create(c, id)
 }
 
-// Send sends a message to all Clients in a Room.
 func (r *Room) Send(c appengine.Context, message string) os.Error {
 	var clients []Client
 
@@ -73,9 +73,11 @@ func (r *Room) Send(c appengine.Context, message string) os.Error {
 
 // getRoom fetches a Room by name from the datastore,
 // creating it if it doesn't exist already.
-func getRoom(c appengine.Context, name string) (room *Room, err os.Error) {
+func getRoom(c appengine.Context, name string) (
+			room *Room, err os.Error) {
 	room = &Room{Name: name}
-	err = datastore.RunInTransaction(c, func(c appengine.Context) os.Error {
+	err = datastore.RunInTransaction(c,
+				func(c appengine.Context) os.Error {
 		err := datastore.Get(c, room.Key(), room)
 		if err == datastore.ErrNoSuchEntity {
 			_, err = datastore.Put(c, room.Key(), room)
