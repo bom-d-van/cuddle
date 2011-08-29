@@ -15,7 +15,7 @@ func init() {
 const nameChars = "abcdefghijklmnopqrstuvwxyz"
 
 // ValidName matches a string consisting of nameChars.
-var ValidName = regexp.MustCompile(`^[` + nameChars + `]+$`)
+var ValidName = regexp.MustCompile(`^[` + regexp.QuoteMeta(nameChars) + `]+$`)
 
 // RandName returns a string of l random characters chosen from nameChars.
 func RandName(l int) string {

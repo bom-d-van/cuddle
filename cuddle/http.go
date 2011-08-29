@@ -7,18 +7,20 @@ import (
 )
 
 const (
-	defaultNameLen = 4 // the length of randomly generated names
+	defaultNameLen = 4 // the length of randomly generated room names
 	clientIdLen    = 40
 )
 
 func init() {
+	// Register our handlers with the http package.
 	http.HandleFunc("/", root)
 	http.HandleFunc("/post", post)
 }
 
+// rootTmpl is the main (and only) HTML template.
 var rootTmpl = template.Must(template.ParseFile("tmpl/root.html"))
 
-// root is an http.HandlerFunc that joins or creates a Room,
+// root is an http handler that joins or creates a Room,
 // creates a new Client, and writes the cuddle HTML to the response.
 func root(w http.ResponseWriter, r *http.Request) {
 	// Reject bogus requests.
@@ -61,7 +63,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// post is an http.HandlerFunc that broadcasts a message to a specified Room.
+// post is an http handler that broadcasts a message to a specified Room.
 func post(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 
