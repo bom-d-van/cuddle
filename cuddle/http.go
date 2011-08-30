@@ -6,10 +6,7 @@ import (
 	"appengine-go-backports/template"
 )
 
-const (
-	defaultNameLen = 4 // the length of randomly generated room names
-	clientIdLen    = 40
-)
+const clientIdLen = 40
 
 func init() {
 	// Register our handlers with the http package.
@@ -20,17 +17,14 @@ func init() {
 // rootTmpl is the main (and only) HTML template.
 var rootTmpl = template.Must(template.ParseFile("tmpl/root.html"))
 
-// root is an http handler that joins or creates a Room,
+// root is an HTTP handler that joins or creates a Room,
 // creates a new Client, and writes the HTML response.
 func root(w http.ResponseWriter, r *http.Request) {
 	// Get the name from the request URL.
 	name := r.URL.Path[1:]
-
-	// If no valid name is provided,
-	// generate a new one and redirect there.
-	if !ValidName.MatchString(name) {
-		name = RandName(defaultNameLen)
-		http.Redirect(w, r, "/"+name, http.StatusFound)
+	// If no valid name is provided, show an error.
+	if !validName.MatchString(name) {
+		http.Error(w, "Invalid cuddle name", 404)
 		return
 	}
 
@@ -44,7 +38,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a new Client, getting the channel token.
-	token, err := room.AddClient(c, RandName(clientIdLen))
+	token, err := room.AddClient(c, randId(clientIdLen))
 	if err != nil {
 		http.Error(w, err.String(), 500)
 		return

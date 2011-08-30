@@ -82,7 +82,7 @@
                 Cuddle
               </h1>
               <h2>
-                A Go App Engine demo<br>Andrew Gerrand<br>adg@golang.org<br>GTUG Sydney<br>Aug 30, 2011<br>
+                A Go App Engine Demo<br>Andrew Gerrand<br>adg@golang.org<br>GTUG Sydney<br>Aug 30, 2011<br>
               </h2>
             </hgroup>
           </section>
@@ -131,7 +131,7 @@
 
           <section>
             <p>
-            Users visit a url, eg http://cuddle-demo.appspot.com/gtug <br>
+            Users visit a URL such as http://cuddle-demo.appspot.com/gtug <br>
             
             <br>
             
@@ -166,7 +166,7 @@
             
             <br>
             
-            Participants in a Room correspond to a Client record.<br>
+            Each participant in a Room corresponds to a Client record.<br>
             
             <br>
             
@@ -378,65 +378,33 @@ func init() { // not function &#34;main&#34;
 
 <pre>
 <!--{{code "../cuddle/http.go" `/root.is/` `/.}/`}}
--->// root is an http handler that joins or creates a Room,
+-->// root is an HTTP handler that joins or creates a Room,
 // creates a new Client, and writes the HTML response.
 func root(w http.ResponseWriter, r *http.Request) {
     // Get the name from the request URL.
     name := r.URL.Path[1:]
-
-    // If no valid name is provided,
-    // generate a new one and redirect there.
-    if !ValidName.MatchString(name) {
-        name = RandName(defaultNameLen)
-        http.Redirect(w, r, &#34;/&#34;+name, http.StatusFound)
+    // If no valid name is provided, show an error.
+    if !validName.MatchString(name) {
+        http.Error(w, &#34;Invalid cuddle name&#34;, 404)
         return
     }
+</pre>
+
+<pre>
+<!--{{code "../cuddle/name.go" `/validName/` `/\)/`}}
+-->// validName matches a valid name string.
+var validName = regexp.MustCompile(`^[a-zA-Z0-9\-]+$`)
 </pre>
 
           </section>
         </div> <!-- end slide template -->
       <!-- end of slide 9 --><!-- start of slide 10 -->
         <div class="slide" id="slide-10">
-          <header>Naming code (name.go)</header>
-
-          <section>
-            <p></p>
-            
-
-
-<pre>
-<!--{{code "../cuddle/name.go" `/ValidName/` "$"}}
--->// ValidName matches a valid name string.
-var ValidName = regexp.MustCompile(`^[a-z]+$`)
-
-// RandName returns a string of l random characters.
-func RandName(l int) string {
-    n := make([]byte, l)
-    for i := range n {
-        n[i] = &#39;a&#39; + byte(rand.Intn(26))
-    }
-    return string(n)
-}
-
-func init() {
-    // Seed number generator with the current time.
-    rand.Seed(time.Nanoseconds())
-}
-</pre>
-
-          </section>
-        </div> <!-- end slide template -->
-      <!-- end of slide 10 --><!-- start of slide 11 -->
-        <div class="slide" id="slide-11">
           <header>The root handler (2)</header>
 
           <section>
             <p>
             Now that we have the name of the room, call the getRoom function to get or create a Room record in the datastore.<br>
-            
-            <br>
-            
-            App Engine API calls are tied to the current request. To make any kind of API call we need an appengine.Context, which we get by calling appengine.NewContext with the current *http.Request.<br>
             </p>
             
 
@@ -453,11 +421,19 @@ func init() {
     }
 </pre>
 
+<pre>
+<!--{{code "../cuddle/db.go" `/Room.represents/` `/}/`}}
+-->// Room represents a chat room.
+type Room struct {
+    Name string
+}
+</pre>
+
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 11 --><!-- start of slide 12 -->
-        <div class="slide" id="slide-12">
-          <header>The Room type</header>
+      <!-- end of slide 10 --><!-- start of slide 11 -->
+        <div class="slide" id="slide-11">
+          <header>The getRoom function</header>
 
           <section>
             <p></p>
@@ -465,10 +441,19 @@ func init() {
 
 
 <pre>
-<!--{{code "../cuddle/db.go" `/Room.represents/` `/}/`}}
--->// Room represents a chat room.
-type Room struct {
-    Name string
+<!--{{code "cuddle/getroom"}}
+-->// getRoom fetches a Room by name from the datastore,
+// creating it if it doesn&#39;t exist already.
+func getRoom(c appengine.Context, name string) (
+                *Room, os.Error) {
+    room = &amp;Room{name}
+
+    err := datastore.Get(c, room.Key(), room)
+    if err == datastore.ErrNoSuchEntity {
+        _, err = datastore.Put(c, room.Key(), room)
+    }
+
+    return room, err
 }
 </pre>
 
@@ -481,9 +466,9 @@ type Room struct {
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 12 --><!-- start of slide 13 -->
-        <div class="slide" id="slide-13">
-          <header>The getRoom function</header>
+      <!-- end of slide 11 --><!-- start of slide 12 -->
+        <div class="slide" id="slide-12">
+          <header>The getRoom function (transactional)</header>
 
           <section>
             <p></p>
@@ -495,24 +480,25 @@ type Room struct {
 -->// getRoom fetches a Room by name from the datastore,
 // creating it if it doesn&#39;t exist already.
 func getRoom(c appengine.Context, name string) (
-            room *Room, err os.Error) {
-    room = &amp;Room{Name: name}
-    err = datastore.RunInTransaction(c,
-                func(c appengine.Context) os.Error {
+                *Room, os.Error) {
+    room = &amp;Room{name}
+
+    fn := func(c appengine.Context) os.Error {
         err := datastore.Get(c, room.Key(), room)
         if err == datastore.ErrNoSuchEntity {
             _, err = datastore.Put(c, room.Key(), room)
         }
         return err
-    })
-    return
+    }
+
+    return room, datastore.RunInTransaction(c, fn)
 }
 </pre>
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 13 --><!-- start of slide 14 -->
-        <div class="slide" id="slide-14">
+      <!-- end of slide 12 --><!-- start of slide 13 -->
+        <div class="slide" id="slide-13">
           <header>The root handler (3)</header>
 
           <section>
@@ -523,17 +509,24 @@ func getRoom(c appengine.Context, name string) (
 <pre>
 <!--{{code "../cuddle/http.go" `/Create.a.new/` `/}/`}}
 -->    // Create a new Client, getting the channel token.
-    token, err := room.AddClient(c, RandName(clientIdLen))
+    token, err := room.AddClient(c, randId(clientIdLen))
     if err != nil {
         http.Error(w, err.String(), 500)
         return
     }
 </pre>
 
+<pre>
+<!--{{code "../cuddle/db.go" `/type.Client/` `/}/`}}
+-->type Client struct {
+    ClientID string // the channel Client ID
+}
+</pre>
+
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 14 --><!-- start of slide 15 -->
-        <div class="slide" id="slide-15">
+      <!-- end of slide 13 --><!-- start of slide 14 -->
+        <div class="slide" id="slide-14">
           <header>The AddClient method</header>
 
           <section>
@@ -557,17 +550,10 @@ func getRoom(c appengine.Context, name string) (
 }
 </pre>
 
-<pre>
-<!--{{code "../cuddle/db.go" `/type.Client/` `/}/`}}
--->type Client struct {
-    ClientID string // the channel Client ID
-}
-</pre>
-
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 15 --><!-- start of slide 16 -->
-        <div class="slide" id="slide-16">
+      <!-- end of slide 14 --><!-- start of slide 15 -->
+        <div class="slide" id="slide-15">
           <header>The root handler (4)</header>
 
           <section>
@@ -592,10 +578,16 @@ func getRoom(c appengine.Context, name string) (
 }
 </pre>
 
+<pre>
+<!--{{code "../cuddle/http.go" `/rootTmpl/` `/\)/`}}
+-->// rootTmpl is the main (and only) HTML template.
+var rootTmpl = template.Must(template.ParseFile(&#34;tmpl/root.html&#34;))
+</pre>
+
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 16 --><!-- start of slide 17 -->
-        <div class="slide" id="slide-17">
+      <!-- end of slide 15 --><!-- start of slide 16 -->
+        <div class="slide" id="slide-16">
           <header>The root template</header>
 
           <section>
@@ -625,8 +617,8 @@ $(function() {
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 17 --><!-- start of slide 18 -->
-        <div class="slide" id="slide-18">
+      <!-- end of slide 16 --><!-- start of slide 17 -->
+        <div class="slide" id="slide-17">
           <header>The post handler</header>
 
           <section>
@@ -657,8 +649,8 @@ func post(w http.ResponseWriter, r *http.Request) {
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 18 --><!-- start of slide 19 -->
-        <div class="slide" id="slide-19">
+      <!-- end of slide 17 --><!-- start of slide 18 -->
+        <div class="slide" id="slide-18">
           <header>The Send method</header>
 
           <section>
@@ -689,8 +681,8 @@ func (r *Room) Send(c appengine.Context, message string)
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 19 --><!-- start of slide 20 -->
-        <div class="slide" id="slide-20">
+      <!-- end of slide 18 --><!-- start of slide 19 -->
+        <div class="slide" id="slide-19">
           <header>Caching: the Send method</header>
 
           <section>
@@ -707,22 +699,21 @@ func (r *Room) Send(c appengine.Context, message string)
     if err != nil &amp;&amp; err != memcache.ErrCacheMiss {
         return err
     }
-
     if err == memcache.ErrCacheMiss {
         // omitted: query datastore as before
+        memcache.JSON.Set(c, &amp;memcache.Item{
+            Key: r.Name, Object: clients,
+        })
     }
     // omitted: send messages as before
-
-    return memcache.JSON.Set(c, &amp;memcache.Item{
-        Key: r.Name, Object: clients,
-    })
+    return nil
 }
 </pre>
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 20 --><!-- start of slide 21 -->
-        <div class="slide" id="slide-21">
+      <!-- end of slide 19 --><!-- start of slide 20 -->
+        <div class="slide" id="slide-20">
           <header>Caching: the AddClient method</header>
 
           <section>
@@ -732,19 +723,17 @@ func (r *Room) Send(c appengine.Context, message string)
 
 <pre>
 <!--{{code "../cuddle/db.go" `/AddClient\(/` `/^}/`}}
--->func (r *Room) AddClient(c appengine.Context, id string) (string, os.Error) {
+-->func (r *Room) AddClient(c appengine.Context, id string) (
+                string, os.Error) {
     key := datastore.NewKey(&#34;Client&#34;, id, 0, r.Key())
-    client := &amp;Client{ClientID: id}
+    client := &amp;Client{id}
     _, err := datastore.Put(c, key, client)
     if err != nil {
         return &#34;&#34;, err
     }
 
     // Purge the now-invalid cache record (if it exists).
-    err = memcache.Delete(c, r.Name)
-    if err != nil &amp;&amp; err != memcache.ErrCacheMiss {
-        return &#34;&#34;, err
-    }
+    memcache.Delete(c, r.Name)
 
     return channel.Create(c, id)
 }
@@ -752,8 +741,8 @@ func (r *Room) Send(c appengine.Context, message string)
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 21 --><!-- start of slide 22 -->
-        <div class="slide" id="slide-22">
+      <!-- end of slide 20 --><!-- start of slide 21 -->
+        <div class="slide" id="slide-21">
           <header>That&#39;s it!</header>
 
           <section>
@@ -781,7 +770,7 @@ func (r *Room) Send(c appengine.Context, message string)
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 22 -->
+      <!-- end of slide 21 -->
 
       </div>
 

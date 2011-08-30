@@ -27,19 +27,17 @@ type Client struct {
 
 // AddClient puts a Client record to the datastore with the Room as its
 // parent, creates a channel and returns the channel token.
-func (r *Room) AddClient(c appengine.Context, id string) (string, os.Error) {
+func (r *Room) AddClient(c appengine.Context, id string) (
+				string, os.Error) {
 	key := datastore.NewKey("Client", id, 0, r.Key())
-	client := &Client{ClientID: id}
+	client := &Client{id}
 	_, err := datastore.Put(c, key, client)
 	if err != nil {
 		return "", err
 	}
 
 	// Purge the now-invalid cache record (if it exists).
-	err = memcache.Delete(c, r.Name)
-	if err != nil && err != memcache.ErrCacheMiss {
-		return "", err
-	}
+	memcache.Delete(c, r.Name)
 
 	return channel.Create(c, id)
 }
@@ -58,6 +56,12 @@ func (r *Room) Send(c appengine.Context, message string) os.Error {
 		if err != nil {
 			return err
 		}
+		err = memcache.JSON.Set(c, &memcache.Item{
+			Key: r.Name, Object: clients,
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	for _, client := range clients {
@@ -67,23 +71,22 @@ func (r *Room) Send(c appengine.Context, message string) os.Error {
 		}
 	}
 
-	return memcache.JSON.Set(c, &memcache.Item{
-		Key: r.Name, Object: clients,
-	})
+	return nil
 }
 
 // getRoom fetches a Room by name from the datastore,
 // creating it if it doesn't exist already.
 func getRoom(c appengine.Context, name string) (
-			room *Room, err os.Error) {
-	room = &Room{Name: name}
-	err = datastore.RunInTransaction(c,
-				func(c appengine.Context) os.Error {
+				*Room, os.Error) {
+	room = &Room{name}
+
+	fn := func(c appengine.Context) os.Error {
 		err := datastore.Get(c, room.Key(), room)
 		if err == datastore.ErrNoSuchEntity {
 			_, err = datastore.Put(c, room.Key(), room)
 		}
 		return err
-	})
-	return
+	}
+
+	return room, datastore.RunInTransaction(c, fn)
 }

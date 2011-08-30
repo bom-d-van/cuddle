@@ -5,13 +5,12 @@ func (r *Room) Send(c appengine.Context, message string)
 	if err != nil && err != memcache.ErrCacheMiss {
 		return err
 	}
-
 	if err == memcache.ErrCacheMiss {
 		// omitted: query datastore as before
+		memcache.JSON.Set(c, &memcache.Item{
+			Key: r.Name, Object: clients,
+		})
 	}
 	// omitted: send messages as before
-
-	return memcache.JSON.Set(c, &memcache.Item{
-		Key: r.Name, Object: clients,
-	})
+	return nil
 }

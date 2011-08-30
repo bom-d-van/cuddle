@@ -1,7 +1,7 @@
 # This is a file. (or is it?)
 
 Cuddle
-A Go App Engine demo
+A Go App Engine Demo
 Andrew Gerrand
 adg@golang.org
 GTUG Sydney
@@ -23,7 +23,7 @@ All major App Engine APIs are supported:
 
 * Cuddle: multi-user anonymous chat
 
-Users visit a url, eg http://cuddle-demo.appspot.com/gtug 
+Users visit a URL such as http://cuddle-demo.appspot.com/gtug 
 
 This adds them to the "gtug" room.
 
@@ -37,7 +37,7 @@ That's it. (Try it now!)
 
 The path component of the URL (eg, "/gtug") corresponds to a Room record in the datastore.
 
-Participants in a Room correspond to a Client record.
+Each participant in a Room corresponds to a Client record.
 
 When a user loads that URL:
 - Look up the Room named "gtug". If it doesn't exist, create it.
@@ -88,36 +88,32 @@ code ../cuddle/http.go /func.init/ /}/
 
 The first part of the root handler gets the room name from the request URL and handles the case of a missing or invalid name.
 code ../cuddle/http.go /root.is/ /.}/
-
-* Naming code (name.go)
-
-code ../cuddle/name.go /ValidName/ $
+code ../cuddle/name.go /validName/ /\)/
 
 * The root handler (2)
 
 Now that we have the name of the room, call the getRoom function to get or create a Room record in the datastore.
-
-App Engine API calls are tied to the current request. To make any kind of API call we need an appengine.Context, which we get by calling appengine.NewContext with the current *http.Request.
 code ../cuddle/http.go /NewContext/ /.}/
-
-* The Room type
-
 code ../cuddle/db.go /Room.represents/ /}/
-code ../cuddle/db.go /Key/ /}/
 
 * The getRoom function
+
+code cuddle/getroom
+code ../cuddle/db.go /Key/ /}/
+
+* The getRoom function (transactional)
 
 code ../cuddle/db.go /getRoom/ $
 
 * The root handler (3)
 
 code ../cuddle/http.go /Create.a.new/ /}/
+code ../cuddle/db.go /type.Client/ /}/
 
 * The AddClient method
 
 AddClient puts a Client record to the datastore with the Room as its parent, creates a channel, and returns the channel token.
 code cuddle/snippets /AddClient/ /^}/
-code ../cuddle/db.go /type.Client/ /}/
 
 * The root handler (4)
 
@@ -125,6 +121,7 @@ Finally, we have a *Room and a channel token. Let's render the HTML template.
 
 The "data" variable is an anonymous struct with the two fields we want to pass to the template, Room and Token.
 code ../cuddle/http.go /Render/ /^}/
+code ../cuddle/http.go /rootTmpl/ /\)/
 
 * The root template
 
