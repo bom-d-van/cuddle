@@ -135,11 +135,11 @@
             
             <br>
             
-            This adds them to the &#34;gtug&#34; cuddle.<br>
+            This adds them to the &#34;gtug&#34; room.<br>
             
             <br>
             
-            Users send messages to the cuddle.<br>
+            Users send messages to the room.<br>
             
             <br>
             
@@ -158,6 +158,66 @@
         </div> <!-- end slide template -->
       <!-- end of slide 1 --><!-- start of slide 2 -->
         <div class="slide" id="slide-2">
+          <header>How it works: joining (1)</header>
+
+          <section>
+            <p>
+            The path component of the URL (eg, &#34;/gtug&#34;) corresponds to a Room record in the datastore.<br>
+            
+            <br>
+            
+            Participants in a Room correspond to a Client record.<br>
+            
+            <br>
+            
+            When a user loads that URL:<br>
+            </p>
+            
+            <ul>
+            
+            <li>Look up the Room named &#34;gtug&#34;. If it doesn&#39;t exist, create it.</li>
+            
+            <li>Generate a random ID for this user/session, and create a Client record as a child of the Room record.</li>
+            
+            <li>Create a browser channel with the Channel API. The channel is identified by the Client ID. </li>
+            
+            <li>Serve the HTML/JS/CSS to the user, including the room name and browser channel token.</li>
+            
+            <li>The client-side JavaScript connects to the channel after the page loads.</li>
+            
+            </ul>
+            
+
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 2 --><!-- start of slide 3 -->
+        <div class="slide" id="slide-3">
+          <header>How it works: messages (2)</header>
+
+          <section>
+            <p>
+            Clients receive messages through the browser channel. When the client-side JavaScript receives a message it draws the message to the UI.<br>
+            
+            <br>
+            
+            Clients post messages by fetching &#34;/post?room=gtug&amp;=MESSAGE&#34;. On receiving that request, the server does this: <br>
+            </p>
+            
+            <ul>
+            
+            <li>Query the datastore for all Clients whose parent is the Room &#34;gtug&#34;.</li>
+            
+            <li>Send a message to each of those Clients using the Channel API.</li>
+            
+            </ul>
+            
+
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 3 --><!-- start of slide 4 -->
+        <div class="slide" id="slide-4">
           <header>Anatomy of a Go app</header>
 
           <section>
@@ -182,8 +242,8 @@
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 2 --><!-- start of slide 3 -->
-        <div class="slide" id="slide-3">
+      <!-- end of slide 4 --><!-- start of slide 5 -->
+        <div class="slide" id="slide-5">
           <header>app.yaml</header>
 
           <section>
@@ -205,8 +265,8 @@ handlers:
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 3 --><!-- start of slide 4 -->
-        <div class="slide" id="slide-4">
+      <!-- end of slide 5 --><!-- start of slide 6 -->
+        <div class="slide" id="slide-6">
           <header>Go&#39;s http package</header>
 
           <section>
@@ -236,8 +296,8 @@ func main() {
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 4 --><!-- start of slide 5 -->
-        <div class="slide" id="slide-5">
+      <!-- end of slide 6 --><!-- start of slide 7 -->
+        <div class="slide" id="slide-7">
           <header>Package http and App Engine</header>
 
           <section>
@@ -267,8 +327,8 @@ func init() { // not function &#34;main&#34;
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 5 --><!-- start of slide 6 -->
-        <div class="slide" id="slide-6">
+      <!-- end of slide 7 --><!-- start of slide 8 -->
+        <div class="slide" id="slide-8">
           <header>Cuddle&#39;s HTTP handlers</header>
 
           <section>
@@ -305,8 +365,8 @@ func init() { // not function &#34;main&#34;
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 6 --><!-- start of slide 7 -->
-        <div class="slide" id="slide-7">
+      <!-- end of slide 8 --><!-- start of slide 9 -->
+        <div class="slide" id="slide-9">
           <header>The root handler (1)</header>
 
           <section>
@@ -335,8 +395,8 @@ func root(w http.ResponseWriter, r *http.Request) {
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 7 --><!-- start of slide 8 -->
-        <div class="slide" id="slide-8">
+      <!-- end of slide 9 --><!-- start of slide 10 -->
+        <div class="slide" id="slide-10">
           <header>Naming code (name.go)</header>
 
           <section>
@@ -366,8 +426,8 @@ func init() {
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 8 --><!-- start of slide 9 -->
-        <div class="slide" id="slide-9">
+      <!-- end of slide 10 --><!-- start of slide 11 -->
+        <div class="slide" id="slide-11">
           <header>The root handler (2)</header>
 
           <section>
@@ -395,8 +455,8 @@ func init() {
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 9 --><!-- start of slide 10 -->
-        <div class="slide" id="slide-10">
+      <!-- end of slide 11 --><!-- start of slide 12 -->
+        <div class="slide" id="slide-12">
           <header>The Room type</header>
 
           <section>
@@ -421,8 +481,8 @@ type Room struct {
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 10 --><!-- start of slide 11 -->
-        <div class="slide" id="slide-11">
+      <!-- end of slide 12 --><!-- start of slide 13 -->
+        <div class="slide" id="slide-13">
           <header>The getRoom function</header>
 
           <section>
@@ -451,8 +511,8 @@ func getRoom(c appengine.Context, name string) (
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 11 --><!-- start of slide 12 -->
-        <div class="slide" id="slide-12">
+      <!-- end of slide 13 --><!-- start of slide 14 -->
+        <div class="slide" id="slide-14">
           <header>The root handler (3)</header>
 
           <section>
@@ -472,8 +532,8 @@ func getRoom(c appengine.Context, name string) (
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 12 --><!-- start of slide 13 -->
-        <div class="slide" id="slide-13">
+      <!-- end of slide 14 --><!-- start of slide 15 -->
+        <div class="slide" id="slide-15">
           <header>The AddClient method</header>
 
           <section>
@@ -506,8 +566,8 @@ func getRoom(c appengine.Context, name string) (
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 13 --><!-- start of slide 14 -->
-        <div class="slide" id="slide-14">
+      <!-- end of slide 15 --><!-- start of slide 16 -->
+        <div class="slide" id="slide-16">
           <header>The root handler (4)</header>
 
           <section>
@@ -534,8 +594,8 @@ func getRoom(c appengine.Context, name string) (
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 14 --><!-- start of slide 15 -->
-        <div class="slide" id="slide-15">
+      <!-- end of slide 16 --><!-- start of slide 17 -->
+        <div class="slide" id="slide-17">
           <header>The root template</header>
 
           <section>
@@ -565,8 +625,8 @@ $(function() {
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 15 --><!-- start of slide 16 -->
-        <div class="slide" id="slide-16">
+      <!-- end of slide 17 --><!-- start of slide 18 -->
+        <div class="slide" id="slide-18">
           <header>The post handler</header>
 
           <section>
@@ -597,8 +657,8 @@ func post(w http.ResponseWriter, r *http.Request) {
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 16 --><!-- start of slide 17 -->
-        <div class="slide" id="slide-17">
+      <!-- end of slide 18 --><!-- start of slide 19 -->
+        <div class="slide" id="slide-19">
           <header>The Send method</header>
 
           <section>
@@ -629,7 +689,99 @@ func (r *Room) Send(c appengine.Context, message string)
 
           </section>
         </div> <!-- end slide template -->
-      <!-- end of slide 17 -->
+      <!-- end of slide 19 --><!-- start of slide 20 -->
+        <div class="slide" id="slide-20">
+          <header>Caching: the Send method</header>
+
+          <section>
+            <p></p>
+            
+
+
+<pre>
+<!--{{code "cuddle/cache" `/Send/` `/^}/`}}
+-->func (r *Room) Send(c appengine.Context, message string)
+                os.Error {
+    var clients []Client
+    _, err := memcache.JSON.Get(c, r.Name, &amp;clients)
+    if err != nil &amp;&amp; err != memcache.ErrCacheMiss {
+        return err
+    }
+
+    if err == memcache.ErrCacheMiss {
+        // omitted: query datastore as before
+    }
+    // omitted: send messages as before
+
+    return memcache.JSON.Set(c, &amp;memcache.Item{
+        Key: r.Name, Object: clients,
+    })
+}
+</pre>
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 20 --><!-- start of slide 21 -->
+        <div class="slide" id="slide-21">
+          <header>Caching: the AddClient method</header>
+
+          <section>
+            <p></p>
+            
+
+
+<pre>
+<!--{{code "../cuddle/db.go" `/AddClient\(/` `/^}/`}}
+-->func (r *Room) AddClient(c appengine.Context, id string) (string, os.Error) {
+    key := datastore.NewKey(&#34;Client&#34;, id, 0, r.Key())
+    client := &amp;Client{ClientID: id}
+    _, err := datastore.Put(c, key, client)
+    if err != nil {
+        return &#34;&#34;, err
+    }
+
+    // Purge the now-invalid cache record (if it exists).
+    err = memcache.Delete(c, r.Name)
+    if err != nil &amp;&amp; err != memcache.ErrCacheMiss {
+        return &#34;&#34;, err
+    }
+
+    return channel.Create(c, id)
+}
+</pre>
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 21 --><!-- start of slide 22 -->
+        <div class="slide" id="slide-22">
+          <header>That&#39;s it!</header>
+
+          <section>
+            <p>
+            This project: http://code.google.com/p/cuddle/<br>
+            
+            <br>
+            
+            App Engine for Go: http://code.google.com/appengine/docs/go/<br>
+            
+            <br>
+            
+            The Go web site: http://golang.org/<br>
+            
+            <br>
+            
+            The Go blog: http://blog.golang.org/<br>
+            
+            <br>
+            
+            <br>
+            </p>
+            
+
+
+          </section>
+        </div> <!-- end slide template -->
+      <!-- end of slide 22 -->
 
       </div>
 

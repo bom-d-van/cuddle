@@ -25,13 +25,34 @@ All major App Engine APIs are supported:
 
 Users visit a url, eg http://cuddle-demo.appspot.com/gtug 
 
-This adds them to the "gtug" cuddle.
+This adds them to the "gtug" room.
 
-Users send messages to the cuddle.
+Users send messages to the room.
 
 All present members receive them.
 
 That's it. (Try it now!)
+
+* How it works: joining (1)
+
+The path component of the URL (eg, "/gtug") corresponds to a Room record in the datastore.
+
+Participants in a Room correspond to a Client record.
+
+When a user loads that URL:
+- Look up the Room named "gtug". If it doesn't exist, create it.
+- Generate a random ID for this user/session, and create a Client record as a child of the Room record.
+- Create a browser channel with the Channel API. The channel is identified by the Client ID. 
+- Serve the HTML/JS/CSS to the user, including the room name and browser channel token.
+- The client-side JavaScript connects to the channel after the page loads.
+
+* How it works: messages (2)
+
+Clients receive messages through the browser channel. When the client-side JavaScript receives a message it draws the message to the UI.
+
+Clients post messages by fetching "/post?room=gtug&=MESSAGE". On receiving that request, the server does this: 
+- Query the datastore for all Clients whose parent is the Room "gtug".
+- Send a message to each of those Clients using the Channel API.
 
 * Anatomy of a Go app
 
@@ -117,5 +138,21 @@ code ../cuddle/http.go /post.broad/ /^}/
 
 code cuddle/snippets /Send/ /^}/
 
+* Caching: the Send method
 
+code cuddle/cache /Send/ /^}/
+
+* Caching: the AddClient method
+
+code ../cuddle/db.go /AddClient\(/ /^}/
+
+* That's it!
+
+This project: http://code.google.com/p/cuddle/
+
+App Engine for Go: http://code.google.com/appengine/docs/go/
+
+The Go web site: http://golang.org/
+
+The Go blog: http://blog.golang.org/
 

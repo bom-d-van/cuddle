@@ -35,6 +35,7 @@ func (r *Room) AddClient(c appengine.Context, id string) (string, os.Error) {
 		return "", err
 	}
 
+	// Purge the now-invalid cache record (if it exists).
 	err = memcache.Delete(c, r.Name)
 	if err != nil && err != memcache.ErrCacheMiss {
 		return "", err

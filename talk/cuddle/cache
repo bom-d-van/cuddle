@@ -1,0 +1,17 @@
+func (r *Room) Send(c appengine.Context, message string)
+				os.Error {
+	var clients []Client
+	_, err := memcache.JSON.Get(c, r.Name, &clients)
+	if err != nil && err != memcache.ErrCacheMiss {
+		return err
+	}
+
+	if err == memcache.ErrCacheMiss {
+		// omitted: query datastore as before
+	}
+	// omitted: send messages as before
+
+	return memcache.JSON.Set(c, &memcache.Item{
+		Key: r.Name, Object: clients,
+	})
+}

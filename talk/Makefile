@@ -8,7 +8,7 @@ TARG=makeslide
 GOFILES=\
 	makeslide.goo\
 
-index.html: cuddle.slide makeslide slide.tmpl cuddle/snippets cuddle/hello cuddle/hellogae ../cuddle/http.go ../cuddle/name.go ../cuddle/db.go ../tmpl/root.html
+index.html: cuddle.slide makeslide slide.tmpl cuddle/snippets cuddle/hello cuddle/hellogae ../cuddle/http.go ../cuddle/name.go ../cuddle/db.go ../tmpl/root.html cuddle/cache
 	./makeslide cuddle.slide > index.html
 
 include $(GOROOT)/src/Make.cmd
