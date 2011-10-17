@@ -16,8 +16,8 @@ type Room struct {
 	Name string
 }
 
-func (r *Room) Key() *datastore.Key {
-	return datastore.NewKey("Room", r.Name, 0, nil)
+func (r *Room) Key(c appengine.Context) *datastore.Key {
+	return datastore.NewKey(c, "Room", r.Name, 0, nil)
 }
 
 // Client is a participant in a chat Room.
@@ -27,9 +27,8 @@ type Client struct {
 
 // AddClient puts a Client record to the datastore with the Room as its
 // parent, creates a channel and returns the channel token.
-func (r *Room) AddClient(c appengine.Context, id string) (
-				string, os.Error) {
-	key := datastore.NewKey("Client", id, 0, r.Key())
+func (r *Room) AddClient(c appengine.Context, id string) (string, os.Error) {
+	key := datastore.NewKey(c, "Client", id, 0, r.Key(c))
 	client := &Client{id}
 	_, err := datastore.Put(c, key, client)
 	if err != nil {
@@ -51,7 +50,7 @@ func (r *Room) Send(c appengine.Context, message string) os.Error {
 	}
 
 	if err == memcache.ErrCacheMiss {
-		q := datastore.NewQuery("Client").Ancestor(r.Key())
+		q := datastore.NewQuery("Client").Ancestor(r.Key(c))
 		_, err = q.GetAll(c, &clients)
 		if err != nil {
 			return err
@@ -76,17 +75,16 @@ func (r *Room) Send(c appengine.Context, message string) os.Error {
 
 // getRoom fetches a Room by name from the datastore,
 // creating it if it doesn't exist already.
-func getRoom(c appengine.Context, name string) (
-				*Room, os.Error) {
-	room = &Room{name}
+func getRoom(c appengine.Context, name string) (*Room, os.Error) {
+	room := &Room{name}
 
 	fn := func(c appengine.Context) os.Error {
-		err := datastore.Get(c, room.Key(), room)
+		err := datastore.Get(c, room.Key(c), room)
 		if err == datastore.ErrNoSuchEntity {
-			_, err = datastore.Put(c, room.Key(), room)
+			_, err = datastore.Put(c, room.Key(c), room)
 		}
 		return err
 	}
 
-	return room, datastore.RunInTransaction(c, fn)
+	return room, datastore.RunInTransaction(c, fn, nil)
 }

@@ -3,7 +3,7 @@ package cuddle
 import (
 	"appengine"
 	"http"
-	"appengine-go-backports/template"
+	"template"
 )
 
 const clientIdLen = 40
